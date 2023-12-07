@@ -6,5 +6,5 @@ How to use these functions:
 * Create a new google sheets file
 * Use the menu at the top to go to Extensions>Apps Script
 * Create a new .gs file if it has not already
-* Paste these functions
+* Paste these functions, and save (cmd-s)
 * Now you can use it in google sheets! (For example =compoundInterest(<PARAMS>) in a cell)
