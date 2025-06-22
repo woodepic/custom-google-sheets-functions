@@ -20,15 +20,17 @@ function averageInterestPrinciple(EMR, years_of_mortgage, amount_owing, mode) {
     monthly_payment = (amount_owing / (years_of_mortgage * 12));
   } else {
     var pmt = (EMR * -amount_owing) / (1 - Math.pow(1 + EMR, -(years_of_mortgage * 12)));
-    monthly_payment = -pmt; // Make it negative to match Google Sheets convention
+    monthly_payment = -pmt;
   }
 
   //Populate arrays with monthly interest & principle payment components
   for (var i = 0; i < 12; i++) {
     month_interest = EMR * amount_owing;
+    month_interest = Math.round(month_interest * 100) / 100; //round to nearest cent
     sum_of_months_interest = sum_of_months_interest + (month_interest);
 
     month_principle = monthly_payment - month_interest;
+    month_principle = Math.round(month_principle * 100) / 100; //round to nearest cent
     sum_of_months_principle = sum_of_months_principle + month_principle;
 
     amount_owing = amount_owing - month_principle;
