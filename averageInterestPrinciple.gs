@@ -11,6 +11,8 @@
 
 function averageInterestPrinciple(EMR, years_of_mortgage, amount_owing, mode) {
 
+  if (years_of_mortgage <= 0){return 0;} //case for when this function is called but the mortgage is already paid off
+
   amount_owing = Math.round(amount_owing * 100) / 100; //round to nearest cent
   sum_of_months_interest = 0;
   sum_of_months_principle = 0;
