@@ -7,4 +7,4 @@ How to use these functions:
 * Use the menu at the top to go to Extensions>Apps Script
 * Create a new .gs file if it has not already
 * Paste these functions, and save (cmd-s)
-* Now you can use it in google sheets! (For example =compoundInterest(<PARAMS>) in a cell)
+* Now you can use it in google sheets! (For example =compoundInterest(PARAMS) in a cell)
