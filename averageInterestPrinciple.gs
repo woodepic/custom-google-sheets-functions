@@ -1,55 +1,62 @@
 /**
- * Calculates the average interest & principle components of a mortgage payment throughout a year.
+ * Calculates the average interest & principal components of a mortgage payment
+ * for each amount owing in a single-column range. Returns an n×2 array:
+ *   col 0 -> average principal
+ *   col 1 -> average interest
  *
  * @param {number} EMR The effective monthly rate of your mortgage.
- * @param {number} years_of_mortgage The total number years of your mortgage (amortization period)
- * @param {number} amount_owing The amount owing on the mortgage at the beginning of the year
- * @param {string} mode The mode of this function, i.e. which return value you want. Can be interest, principle, or payment
- * @return {number} The average interest payment, average principle payment, or the payment of your mortgage.
+ * @param {number} years_of_mortgage The amortization period in years (same for all).
+ * @param {number[][]} amount_owings A single-column range of starting balances (n×1).
+ * @return {number[][]} An n×2 array: [[principal_1, interest_1], ...]
  * @customfunction
  */
+function averageInterestPrincipleBatch(EMR, years_of_mortgage, amount_owings) {
+  if (!Array.isArray(amount_owings)) amount_owings = [[amount_owings]];
+  if (amount_owings.length === 0) return [];
 
-function averageInterestPrinciple(EMR, years_of_mortgage, amount_owing, mode) {
+  var results = [];
 
-  if (years_of_mortgage <= 0){return 0;} //case for when this function is called but the mortgage is already paid off
+  for (var r = 0; r < amount_owings.length; r++) {
+    var amt = Number(amount_owings[r][0]);
+    var res = _avgForSingle(EMR, years_of_mortgage, amt);
+    results.push([res.avgPrincipal, res.avgInterest]);
+  }
 
-  amount_owing = Math.round(amount_owing * 100) / 100; //round to nearest cent
-  sum_of_months_interest = 0;
-  sum_of_months_principle = 0;
+  return results;
+}
 
-  //Calculate total montly payment
+// --- helper functions ---
+function _avgForSingle(EMR, years, amount_owing) {
+  if (years <= 0) return { avgPrincipal: 0, avgInterest: 0 };
+
+  amount_owing = _round2(amount_owing);
+  var sumInterest = 0;
+  var sumPrincipal = 0;
+
+  var monthly_payment;
   if (EMR === 0) {
-    monthly_payment = (amount_owing / (years_of_mortgage * 12));
+    monthly_payment = amount_owing / (years * 12);
   } else {
-    var pmt = (EMR * -amount_owing) / (1 - Math.pow(1 + EMR, -(years_of_mortgage * 12)));
+    var pmt = (EMR * -amount_owing) / (1 - Math.pow(1 + EMR, -(years * 12)));
     monthly_payment = -pmt;
   }
 
-  //Populate arrays with monthly interest & principle payment components
   for (var i = 0; i < 12; i++) {
-    month_interest = EMR * amount_owing;
-    month_interest = Math.round(month_interest * 100) / 100; //round to nearest cent
-    sum_of_months_interest = sum_of_months_interest + (month_interest);
+    var month_interest = _round2(EMR * amount_owing);
+    sumInterest += month_interest;
 
-    month_principle = monthly_payment - month_interest;
-    month_principle = Math.round(month_principle * 100) / 100; //round to nearest cent
-    sum_of_months_principle = sum_of_months_principle + month_principle;
+    var month_principal = _round2(monthly_payment - month_interest);
+    sumPrincipal += month_principal;
 
-    amount_owing = amount_owing - month_principle;
-    amount_owing = Math.round(amount_owing * 100) / 100; //round to nearest cent
+    amount_owing = _round2(amount_owing - month_principal);
   }
 
-  average_interest = sum_of_months_interest / 12;
-  average_principle = sum_of_months_principle / 12;
+  return {
+    avgInterest: sumInterest / 12,
+    avgPrincipal: sumPrincipal / 12
+  };
+}
 
-  switch (mode) {
-    case "interest":
-      return average_interest
-    case "principle":
-      return average_principle
-    case "payment":
-      return monthly_payment
-    default:
-      throw new Error("#REF! Choose either 'interest' or 'principle'.");
-  }
+function _round2(x) {
+  return Math.round(x * 100) / 100;
 }
